@@ -46,35 +46,35 @@ namespace Forever
         {
     	    int i = 0;
 
-			try
-			{
-	            var cancellationToken = cancellationTokenSource.Token;
+            try
+            {
+                var cancellationToken = cancellationTokenSource.Token;
 
-	            WriteLog("Forever-ProcessRecord-Begin");
+                WriteLog("Forever-ProcessRecord-Begin");
 
-	            while (i < Count && !cancellationToken.IsCancellationRequested)
-    	        {
-        	        WriteLog($"Forever-ProcessRecord-Wait {i}");
+                while (i < Count && !cancellationToken.IsCancellationRequested)
+                {
+                    WriteLog($"Forever-ProcessRecord-Wait {i}");
 
-	                if (cancellationToken.WaitHandle.WaitOne(Timeout))
-    	            {
-        	            WriteLog("Forever-ProcessRecord-Break");
+                    if (cancellationToken.WaitHandle.WaitOne(Timeout))
+                    {
+                        WriteLog("Forever-ProcessRecord-Break");
 
-	                    break;
-    	            }
+                        break;
+                    }
 	
-    	            i++;
-        	    }
-			}
-			finally
-			{
-				using (var disposable = cancellationTokenSource)
-				{
-					cancellationTokenSource = null;
-				}
+                    i++;
+                }
+            }
+            finally
+            {
+                using (var disposable = cancellationTokenSource)
+                {
+                    cancellationTokenSource = null;
+                }
 
-	            WriteLog($"Forever-ProcessRecord-End {i}");
-			}
+                WriteLog($"Forever-ProcessRecord-End {i}");
+            }
         }
 
         protected override void EndProcessing() => WriteLog("Forever-EndProcessing");
