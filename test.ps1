@@ -55,10 +55,19 @@ $job = Start-ThreadJob -ScriptBlock {
 	}
 } -ArgumentList $LogFile,$Stoppable,$Timeout,$Count
 
-Start-Sleep -Seconds 5
+try
+{
+	Start-Sleep -Seconds 5
 
-$job | Remove-Job -Force
+	Add-Content -Path $LogFile -Value "Remove-Job"
 
-Start-Sleep -Seconds 5
+	$job | Remove-Job -Force
 
-Get-Content -Path $LogFile
+	Add-Content -Path $LogFile -Value "Remove-Job done"
+
+	Start-Sleep -Seconds 5
+}
+finally
+{
+	Get-Content -Path $LogFile
+}

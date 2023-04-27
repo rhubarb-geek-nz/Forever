@@ -94,10 +94,3 @@ foreach ($Filter in "Forever*")
 "@ | Set-Content -Path "$ModuleId/$ModuleId.psd1"
 
 (Get-Content "./README.md")[0..2] | Set-Content -Path "$ModuleId/README.md"
-
-nuget pack "$ModuleName.nuspec"
-
-If ( $LastExitCode -ne 0 )
-{
-	Exit $LastExitCode
-}

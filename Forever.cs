@@ -27,7 +27,7 @@ using System.Threading;
 namespace Forever
 {
     [Cmdlet("Wait", "Forever")]
-    public class NewForever : PSCmdlet
+    public class WaitForever : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
         public string LogFile { get; set; }
@@ -44,33 +44,44 @@ namespace Forever
 
         protected override void ProcessRecord()
         {
-            CancellationToken cancellationToken = cancellationTokenSource.Token;
-            int i = 0;
+    	    int i = 0;
 
-            WriteLog("Forever-ProcessRecord-Begin");
+			try
+			{
+	            var cancellationToken = cancellationTokenSource.Token;
 
-            while (i < Count && !cancellationToken.IsCancellationRequested)
-            {
-                WriteLog($"Forever-ProcessRecord-Wait {i}");
+	            WriteLog("Forever-ProcessRecord-Begin");
 
-                if (cancellationToken.WaitHandle.WaitOne(Timeout))
-                {
-                    WriteLog("Forever-ProcessRecord-Break");
+	            while (i < Count && !cancellationToken.IsCancellationRequested)
+    	        {
+        	        WriteLog($"Forever-ProcessRecord-Wait {i}");
 
-                    break;
-                }
+	                if (cancellationToken.WaitHandle.WaitOne(Timeout))
+    	            {
+        	            WriteLog("Forever-ProcessRecord-Break");
 
-                i++;
-            }
+	                    break;
+    	            }
+	
+    	            i++;
+        	    }
+			}
+			finally
+			{
+				using (var disposable = cancellationTokenSource)
+				{
+					cancellationTokenSource = null;
+				}
 
-            WriteLog($"Forever-ProcessRecord-End {i}");
+	            WriteLog($"Forever-ProcessRecord-End {i}");
+			}
         }
 
         protected override void EndProcessing() => WriteLog("Forever-EndProcessing");
 
         protected override void StopProcessing()
         {
-            if (Stoppable)
+            if (Stoppable && cancellationTokenSource != null)
             {
                 WriteLog("Forever-StopProcessing");
 
