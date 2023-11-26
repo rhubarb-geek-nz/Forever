@@ -2,9 +2,13 @@
 
 Very simple `PowerShell` module for waiting forever.
 
-Build using the `package.ps1` script.
+Build using
 
-Install by copying into a directory on the [PSModulePath](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath)
+```
+$ dotnet publish Forever.csproj --configuration Release
+```
+
+Install by copying the publish into a directory on the [PSModulePath](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath)
 
 ## Stoppable test
 
