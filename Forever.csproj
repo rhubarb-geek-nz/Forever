@@ -3,6 +3,20 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Forever</AssemblyName>
+    <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
+    <Version>0.0.2</Version>
+    <AssemblyTitle>PowerShell Cmdlets for Forever</AssemblyTitle>
+    <Product>Forever for PowerShell</Product>
+    <Company>rhubarb-geek-nz</Company>
+    <PackageId>rhubarb-geek-nz.Forever</PackageId>
+    <Title>Forever for PowerShell</Title>
+    <Description>Forever PSCmdlet</Description>
+    <Authors>Roger Brown</Authors>
+    <PackageProjectUrl>https://github.com/rhubarb-geek-nz/Forever</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rhubarb-geek-nz/Forever.git</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Forever</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,5 +24,14 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).deps.json" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).pdb" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <Exec Command="pwsh ./package.ps1 $(AssemblyName) $(PublishDir)" />
+  </Target>
 
 </Project>

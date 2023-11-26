@@ -19,13 +19,12 @@
 #
 
 param(
-	$ModuleName = "Forever",
-	$CompanyName = "rhubarb-geek-nz"
+	$ProjectName = 'Forever',
+	$PublishDir = 'bin/Release/netstandard2.0/publish/'
 )
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
-$BINDIR = "bin/Release/netstandard2.0/publish"
 $compatiblePSEdition = 'Core'
 $PowerShellVersion = '7.2'
 
@@ -34,45 +33,25 @@ trap
 	throw $PSItem
 }
 
-$xmlDoc = [System.Xml.XmlDocument](Get-Content "$ModuleName.nuspec")
-
-$Version = $xmlDoc.SelectSingleNode("/package/metadata/version").FirstChild.Value
-$ModuleId = $xmlDoc.SelectSingleNode("/package/metadata/id").FirstChild.Value
-$ProjectUri = $xmlDoc.SelectSingleNode("/package/metadata/projectUrl").FirstChild.Value
-$Description = $xmlDoc.SelectSingleNode("/package/metadata/description").FirstChild.Value
-$Author = $xmlDoc.SelectSingleNode("/package/metadata/authors").FirstChild.Value
-$Copyright = $xmlDoc.SelectSingleNode("/package/metadata/copyright").FirstChild.Value
-
-foreach ($Name in "obj", "bin", "$ModuleId")
+function Get-SingleNodeValue([System.Xml.XmlDocument]$doc,[string]$path)
 {
-	if (Test-Path "$Name")
-	{
-		Remove-Item "$Name" -Force -Recurse
-	} 
+    return $doc.SelectSingleNode($path).FirstChild.Value
 }
 
-dotnet publish $ModuleName.csproj --configuration Release
+$xmlDoc = [System.Xml.XmlDocument](Get-Content "$ProjectName.csproj")
 
-If ( $LastExitCode -ne 0 )
-{
-	Exit $LastExitCode
-}
-
-$null = New-Item -Path "$ModuleId" -ItemType Directory
-
-foreach ($Filter in "Forever*")
-{
-	Get-ChildItem -Path "$BINDIR" -Filter $Filter | Foreach-Object {
-		if ((-not($_.Name.EndsWith('.pdb'))) -and (-not($_.Name.EndsWith('.deps.json'))))
-		{
-			Copy-Item -Path $_.FullName -Destination "$ModuleId"
-		}
-	}
-}
+$ModuleId = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/PackageId'
+$Version = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/Version'
+$ProjectUri = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/PackageProjectUrl'
+$Description = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/Description'
+$Author = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/Authors'
+$Copyright = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/Copyright'
+$AssemblyName = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/AssemblyName'
+$CompanyName = Get-SingleNodeValue $xmlDoc '/Project/PropertyGroup/Company'
 
 @"
 @{
-	RootModule = '$ModuleName.dll'
+	RootModule = '$AssemblyName.dll'
 	ModuleVersion = '$Version'
 	GUID = '4f12c796-8ae5-405b-a423-18dbf6258539'
 	Author = '$Author'
@@ -82,7 +61,7 @@ foreach ($Filter in "Forever*")
 	CompatiblePSEditions = @('$compatiblePSEdition')
 	Description = '$Description'
 	FunctionsToExport = @()
-	CmdletsToExport = @('Wait-$ModuleName')
+	CmdletsToExport = @('Wait-$ProjectName')
 	VariablesToExport = '*'
 	AliasesToExport = @()
 	PrivateData = @{
@@ -91,6 +70,6 @@ foreach ($Filter in "Forever*")
 		}
 	}
 }
-"@ | Set-Content -Path "$ModuleId/$ModuleId.psd1"
+"@ | Set-Content -Path "$PublishDir$ModuleId.psd1"
 
-(Get-Content "./README.md")[0..2] | Set-Content -Path "$ModuleId/README.md"
+(Get-Content "./README.md")[0..2] | Set-Content -Path "$PublishDir/README.md"
