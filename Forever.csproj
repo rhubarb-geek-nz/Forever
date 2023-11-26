@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Forever</AssemblyName>
     <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <AssemblyTitle>PowerShell Cmdlets for Forever</AssemblyTitle>
     <Product>Forever for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
