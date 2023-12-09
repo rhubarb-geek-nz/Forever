@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Forever</AssemblyName>
     <Copyright>Copyright &#169; 2023 Roger Brown</Copyright>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <AssemblyTitle>PowerShell Cmdlets for Forever</AssemblyTitle>
     <Product>Forever for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
@@ -17,6 +17,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Forever</PackageTags>
+    <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +34,18 @@
     <Delete Files="@(FilesToDelete)" />
     <Exec Command="dotnet tool restore" />
     <Exec Command="dotnet pwsh -ExecutionPolicy Bypass -File ./package.ps1 $(AssemblyName) $(PublishDir)" />
+  </Target>
+
+  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+        <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
+    </ItemGroup>
+    <Message Importance="high" Text="Signing assemblies: @(FileToSign)" />
+    <SignFile
+          SigningTarget="@(FileToSign)"
+          CertificateThumbprint="$(CertificateThumbprint)"
+          TimestampUrl="http://timestamp.digicert.com"
+    />
   </Target>
 
 </Project>
